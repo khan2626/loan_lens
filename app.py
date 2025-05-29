@@ -67,12 +67,13 @@ def predict():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/api/applications', methods=['GET'])
 @jwt_required()
 def get_applications():
     try:
-        user_id = get_jwt_identity()
-        records = list(db.applications.find({'user_id': user_id}))
+        user_id = ObjectId(get_jwt_identity())
+        records = list(db.applications.find({}))
         
         # Convert ObjectId to string and clean up
         for record in records:
@@ -83,7 +84,8 @@ def get_applications():
         return jsonify(records), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 @app.route('/api/my-applications', methods=['GET'])
 @jwt_required()
 def get_my_applications():
@@ -104,6 +106,7 @@ def get_my_applications():
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/signup', methods=['POST'])
 def signup():
@@ -144,6 +147,7 @@ def signup():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
@@ -166,6 +170,80 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@app.route('/api/applications/<application_id>/status', methods=['PUT'])
+@jwt_required()
+def update_application_status(application_id):
+    try:
+        # Validate application ID format
+        if not ObjectId.is_valid(application_id):
+            return jsonify({"error": "Invalid application ID format"}), 400
+
+        data = request.get_json()
+        
+        # Validate status input
+        valid_statuses = ['pending', 'approved', 'rejected', 'disbursed']
+        if 'status' not in data or data['status'] not in valid_statuses:
+            return jsonify({
+                "error": "Valid status is required",
+                "valid_statuses": valid_statuses
+            }), 400
+
+        # Prepare update data
+        update_data = {
+            'status': data['status'],
+            'updated_at': datetime.now()
+        }
+
+        # Add optional note if provided
+        if 'note' in data:
+            update_data['admin_note'] = data['note']
+
+        # Perform the update
+        result = db.applications.update_one(
+            {'_id': ObjectId(application_id)},
+            {'$set': update_data}
+        )
+
+        # Check if application was found and updated
+        if result.matched_count == 0:
+            return jsonify({"error": "Application not found"}), 404
+
+        # Get the updated application
+        updated_app = db.applications.find_one({'_id': ObjectId(application_id)})
+        updated_app['_id'] = str(updated_app['_id'])
+
+        # Log the status change
+        db.status_changes.insert_one({
+            'application_id': ObjectId(application_id),
+            'previous_status': updated_app.get('status_history', [{}])[-1].get('status') if 'status_history' in updated_app else None,
+            'new_status': data['status'],
+            'changed_by': ObjectId(get_jwt_identity()),
+            'changed_at': datetime.utcnow(),
+            'note': data.get('note')
+        })
+
+        # Update status history
+        db.applications.update_one(
+            {'_id': ObjectId(application_id)},
+            {'$push': {
+                'status_history': {
+                    'status': data['status'],
+                    'changed_at': datetime.now(),
+                    'changed_by': ObjectId(get_jwt_identity())
+                }
+            }}
+        )
+
+        return jsonify({
+            "message": "Application status updated successfully",
+            "application": updated_app
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/api/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
@@ -180,6 +258,9 @@ def get_current_user():
         return jsonify(user), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=os.getenv('FLASK_DEBUG', 'False') == 'True')
+    app.run(host='0.0.0.0', port=5000, debug=os.getenv('FLASK_DEBUG', 'True') == 'True')
