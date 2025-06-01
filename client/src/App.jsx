@@ -1,10 +1,13 @@
 
 import React from "react"
+import Navbar from "./components/Navbar"
 function App() {
   
-
   return (
-    <div className="text-xl bg-amber-700 font-bold">App</div>
+    <div className="">
+      <Navbar/>
+      <p className="text-4xl">App</p>
+    </div>
   )
 }
 
