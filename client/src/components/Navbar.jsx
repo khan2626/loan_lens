@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import logo from '../assets/logo.jpeg'
+import { Link } from 'react-router-dom';
 
-const logo = 'https://placehold.co/40x40/000000/FFFFFF?text=Logo';
+//const logo = 'https://placehold.co/40x40/000000/FFFFFF?text=Logo';
 
 const Navbar = () => {
   // State to manage the visibility of the mobile menu
@@ -12,19 +14,17 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="relative bg-gray-800 text-white p-4 shadow-lg rounded-lg font-inter">
-      {/* Main Navbar Container */}
+    <nav className="relative bg-green-800 text-white p-4 shadow-lg rounded-lg font-inter">
+      
       <div className="container mx-auto flex items-center justify-between">
-        {/* Logo and App Name */}
+      
         <div className="flex items-center space-x-3">
           <img
             src={logo}
             alt="Naija Loan Lens Logo"
-            className="h-10 w-10 rounded-full object-cover shadow-md"
-            // Fallback for broken image (optional, but good practice)
-            // This onError is now largely redundant as 'logo' is a direct URL,
-            // but kept for robustness if 'logo' were to become dynamic.
-            onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/000000/FFFFFF?text=Logo"; }}
+            className="h-10 w-10 rounded-full object-fit shadow-md"
+    
+            //onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/000000/FFFFFF?text=Logo"; }}
           />
           <h1 className="text-2xl font-extrabold tracking-wide text-blue-300">
             NAIJA LOAN LENS
@@ -34,10 +34,10 @@ const Navbar = () => {
         {/* Desktop Navigation Links */}
         <ul className="hidden md:flex items-center space-x-8 text-lg font-medium">
           <li className="cursor-pointer hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
-            Apply
+            <Link to="/apply">Apply</Link>
           </li>
           <li className="cursor-pointer hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
-            Dashboard
+          <Link to="/dashboard">Dashboard</Link>
           </li>
         </ul>
 
@@ -78,13 +78,13 @@ const Navbar = () => {
               className="cursor-pointer text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105"
               onClick={toggleMobileMenu}
             >
-              Apply
+              <Link to="/apply">Apply</Link>
             </li>
             <li
               className="cursor-pointer text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105"
               onClick={toggleMobileMenu}
             >
-              Dashboard
+              <Link to="/dashboard">Dashboard</Link>
             </li>
             <li>
               <button
@@ -119,28 +119,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-
-// import React from 'react'
-// import logo from '../assets/logo.jpeg'
-// const Navbar = () => {
-//   return (
-//     <div>
-//       <div className="">
-//         <img src={logo} alt="" className="" />
-//         <h1 className="">NAIJA LOAN LENS</h1>
-//       </div>
-//       <div className="">
-//         <li className="">
-//           <ul className="">Apply</ul>
-//           <ul className="">Dashboard</ul>
-//         </li>
-//       </div>
-//       <div className="">
-//         <button className=''>Logout</button>
-//       </div>
-//     </div>
-//   )
-// }
 
