@@ -77,7 +77,7 @@ const Apply = () => {
 
     try {
       
-      const API_URL = 'http://localhost:5000/api/predict'; 
+      const API_URL = 'https://loan-lens.onrender.com/api/predict'; 
 
       
       const token = localStorage.getItem('access_token'); 

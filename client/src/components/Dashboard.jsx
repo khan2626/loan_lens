@@ -10,7 +10,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-               const API_URL = 'http://localhost:5000/api/my-applications'; 
+               const API_URL = 'https://loan-lens.onrender.com/api/my-applications'; 
 
        
         const token = localStorage.getItem('access_token'); 

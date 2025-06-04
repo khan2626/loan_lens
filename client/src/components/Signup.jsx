@@ -58,7 +58,7 @@ const Signup = () => {
 
     try {
       // --- IMPORTANT: Replace with your actual Flask API URL ---
-      const API_URL = 'http://localhost:5000/api/signup'; // Adjust if deployed
+      const API_URL = 'https://loan-lens.onrender.com/api/signup'; // Adjust if deployed
 
       const response = await axios.post(API_URL, formData, {
         headers: {
