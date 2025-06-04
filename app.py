@@ -10,19 +10,38 @@ import bcrypt
 from datetime import timedelta
 import re
 from datetime import datetime
+from dotenv import load_dotenv
+
 
 app = Flask(__name__)
 CORS(app)
-
+load_dotenv() 
 # Configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-secret-key-here')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 jwt = JWTManager(app)
 
 # MongoDB setup
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_URI = os.getenv("MONGO_URI")
+#MONGO_URI = "mongodb+srv://israelkhan217:examination217@ecommerce.wpztbqz.mongodb.net/microfinance?retryWrites=true&w=majority"
 client = MongoClient(MONGO_URI)
 db = client.microfinance
+
+# Add this right after your MongoDB setup to test the connection
+try:
+    # Verify the connection by listing database names
+    db_names = client.list_database_names()
+    print("Connected to MongoDB. Available databases:", db_names)
+    print("Actual MONGO_URI being used:", MONGO_URI)
+    
+    # Verify the specific collection exists
+    if 'microfinance' in db_names:
+        collections = db.list_collection_names()
+        print("Collections in microfinance database:", collections)
+    else:
+        print("microfinance database doesn't exist yet")
+except Exception as e:
+    print("MongoDB connection error:", str(e))
 
 @app.route('/api/predict', methods=['POST'])
 @jwt_required()
@@ -80,6 +99,9 @@ def get_applications():
             record['_id'] = str(record['_id'])
             if 'password' in record:
                 del record['password']
+            if 'user_id' in record:
+                record['user_id'] = str(record['user_id'])
+        
                 
         return jsonify(records), 200
     except Exception as e:
