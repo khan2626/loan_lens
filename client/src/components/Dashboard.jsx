@@ -101,7 +101,7 @@ const Dashboard = () => {
                   <p className="text-lg font-bold">
                     Risk Score: <span className="text-green-600">{app.riskScore?.toFixed(4) || 'N/A'}</span>
                   </p>
-                  <p className="text-lg font-bold">
+                  {/* <p className="text-lg font-bold">
                     Recommendation: <span className={`
                       ${app.recommendation === 'approve' ? 'text-green-600' : ''}
                       ${app.recommendation === 'review' ? 'text-yellow-600' : ''}
@@ -109,7 +109,7 @@ const Dashboard = () => {
                     `}>
                       {app.recommendation || 'N/A'}
                     </span>
-                  </p>
+                  </p> */}
                   <p className="text-sm text-gray-500 mt-2">
                     Submitted on: {new Date(app.created_at).toLocaleDateString()}
                   </p>

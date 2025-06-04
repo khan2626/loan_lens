@@ -23,25 +23,11 @@ jwt = JWTManager(app)
 
 # MongoDB setup
 MONGO_URI = os.getenv("MONGO_URI")
-#MONGO_URI = "mongodb+srv://israelkhan217:examination217@ecommerce.wpztbqz.mongodb.net/microfinance?retryWrites=true&w=majority"
+
 client = MongoClient(MONGO_URI)
 db = client.microfinance
 
-# Add this right after your MongoDB setup to test the connection
-try:
-    # Verify the connection by listing database names
-    db_names = client.list_database_names()
-    print("Connected to MongoDB. Available databases:", db_names)
-    print("Actual MONGO_URI being used:", MONGO_URI)
-    
-    # Verify the specific collection exists
-    if 'microfinance' in db_names:
-        collections = db.list_collection_names()
-        print("Collections in microfinance database:", collections)
-    else:
-        print("microfinance database doesn't exist yet")
-except Exception as e:
-    print("MongoDB connection error:", str(e))
+
 
 @app.route('/api/predict', methods=['POST'])
 @jwt_required()
