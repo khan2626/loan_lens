@@ -354,7 +354,7 @@ const Applications = () => {
     setLoading(true);
     setError(null);
     try {
-      const API_URL = 'http://localhost:8300/api/applications';
+      const API_URL = 'https://loan-lens.onrender.com/api/applications';
       const token = localStorage.getItem('access_token');
 
       if (!token) {

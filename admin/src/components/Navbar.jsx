@@ -97,11 +97,9 @@ const Navbar = ({ setIsLoggedIn }) => {
 
           <ul className="flex flex-col items-center space-y-6 text-2xl font-bold">
             <li className="text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
-              <Link to="/apply" onClick={toggleMobileMenu}>Apply</Link>
+              <Link to="/applications" onClick={toggleMobileMenu}>Applications</Link>
             </li>
-            <li className="text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
-              <Link to="/dashboard" onClick={toggleMobileMenu}>Dashboard</Link>
-            </li>
+            
             <li>
               <button
                 onClick={handleLogout}

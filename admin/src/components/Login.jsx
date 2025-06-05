@@ -25,7 +25,7 @@ const Login = ({ setIsLoggedIn }) => {
     setMessageType('');
 
     try {
-      const response = await axios.post('http://172.20.10.2:8300/api/login', formData, {
+      const response = await axios.post('https://loan-lens.onrender.com/api/login', formData, {
         headers: { 'Content-Type': 'application/json' },
       });
 
