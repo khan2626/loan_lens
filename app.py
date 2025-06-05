@@ -109,6 +109,8 @@ def get_my_applications():
             app['_id'] = str(app['_id'])
             if 'user_id' in app:
                 app['user_id'] = str(app['user_id'])
+            if "status_history" in app:
+                del app["status_history"]
         
         return jsonify(user_applications), 200
     
@@ -227,7 +229,7 @@ def update_application_status(application_id):
             'previous_status': updated_app.get('status_history', [{}])[-1].get('status') if 'status_history' in updated_app else None,
             'new_status': data['status'],
             'changed_by': ObjectId(get_jwt_identity()),
-            'changed_at': datetime.utcnow(),
+            'changed_at': datetime.now(),
             'note': data.get('note')
         })
 
