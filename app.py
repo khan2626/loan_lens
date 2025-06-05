@@ -78,18 +78,17 @@ def predict():
 def get_applications():
     try:
         user_id = ObjectId(get_jwt_identity())
-        records = list(db.applications.find({}))
+        user_applications = list(db.applications.find({}))
         
-        # Convert ObjectId to string and clean up
-        for record in records:
-            record['_id'] = str(record['_id'])
-            if 'password' in record:
-                del record['password']
-            if 'user_id' in record:
-                record['user_id'] = str(record['user_id'])
+        for app in user_applications:
+            app['_id'] = str(app['_id'])
+            if 'user_id' in app:
+                app['user_id'] = str(app['user_id'])
+            if "status_history" in app:
+                del app["status_history"]
         
                 
-        return jsonify(records), 200
+        return jsonify(user_applications), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -180,7 +179,6 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @app.route('/api/applications/<application_id>/status', methods=['PUT'])
 @jwt_required()
 def update_application_status(application_id):
@@ -221,7 +219,19 @@ def update_application_status(application_id):
 
         # Get the updated application
         updated_app = db.applications.find_one({'_id': ObjectId(application_id)})
+        
+        # Convert ObjectId fields to strings
         updated_app['_id'] = str(updated_app['_id'])
+        if 'user_id' in updated_app:
+            updated_app['user_id'] = str(updated_app['user_id'])
+        
+        # Convert status_history if it exists
+        if 'status_history' in updated_app:
+            for history_item in updated_app['status_history']:
+                if 'application_id' in history_item:
+                    history_item['application_id'] = str(history_item['application_id'])
+                if 'changed_by' in history_item:
+                    history_item['changed_by'] = str(history_item['changed_by'])
 
         # Log the status change
         db.status_changes.insert_one({

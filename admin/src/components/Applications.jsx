@@ -354,7 +354,7 @@ const Applications = () => {
     setLoading(true);
     setError(null);
     try {
-      const API_URL = 'http://localhost:8300/api/my-applications';
+      const API_URL = 'http://localhost:8300/api/applications';
       const token = localStorage.getItem('access_token');
 
       if (!token) {
