@@ -400,7 +400,7 @@ const Applications = () => {
   const handleStatusUpdateSubmit = async (applicationId, newStatus, note) => {
     setIsUpdatingStatus(true);
     try {
-      const API_URL = `http://localhost:8300/api/applications/${applicationId}/status`;
+      const API_URL = `https://loan-lens.onrender.com/api/applications/${applicationId}/status`;
       const token = localStorage.getItem('access_token');
 
       const response = await axios.put(API_URL, { status: newStatus, note: note }, {

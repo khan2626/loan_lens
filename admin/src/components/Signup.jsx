@@ -76,7 +76,7 @@ const Signup = () => {
 
         // Redirect to dashboard after a short delay for message visibility
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/applications');
         }, 1500);
       }
     } catch (err) {
