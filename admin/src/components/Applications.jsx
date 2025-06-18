@@ -6,9 +6,12 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 import StatusUpdateModal from './StatusUpdateModal';
+import { useSelector, useDispatch } from 'react-redux';
+import { setApplications } from '../redux/rootSlice';
+// import Footer from './Footer';
 
 const Applications = () => {
-  const [applications, setApplications] = useState([]);
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -17,12 +20,14 @@ const Applications = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#d0ed57'];
   const navigate = useNavigate();
+  const { applications } = useSelector(state => state.root)
+  const dispatch = useDispatch()
 
   const fetchApplications = async () => {
     setLoading(true);
     setError(null);
     try {
-      const API_URL = 'https://loan-lens.onrender.com/api/applications';
+      const API_URL = 'http://127.0.0.1:8300/api/applications';
       const token = localStorage.getItem('access_token');
 
       if (!token) {
@@ -37,7 +42,7 @@ const Applications = () => {
           'Authorization': `Bearer ${token}`,
         },
       });
-      setApplications(response.data);
+      dispatch(setApplications(response.data));
     } catch (err) {
       console.error('Error fetching applications:', err);
       if (err.response) {
@@ -116,7 +121,7 @@ const Applications = () => {
 
         {applications.length === 0 ? (
           <div className="bg-white p-6 rounded-lg shadow-md text-center text-gray-600 text-lg">
-            No loan applications found. <Link to="/apply" className="text-blue-600 hover:underline">Apply for a loan</Link> now!
+            No loan applications found!
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
@@ -308,6 +313,7 @@ const Applications = () => {
       )}
     </div>
   );
+ 
 };
 
 export default Applications;
