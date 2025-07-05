@@ -45,7 +45,7 @@ def predict():
             ['python', 'predict.py', input_str],
             capture_output=True,
             text=True,
-            timeout=30  # 30 second timeout
+            timeout=60  # 30 second timeout
         )
 
         if result.returncode != 0:
