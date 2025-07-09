@@ -5,6 +5,7 @@ import Apply from "./components/Apply";
 import Dashboard from "./components/Dashboard";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
+import Footer from "./components/Footer";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('access_token'));
@@ -59,6 +60,7 @@ function App() {
           </Routes>
         </div>
       </BrowserRouter>
+      {isLoggedIn && <Footer setIsLoggedIn={setIsLoggedIn}/>}
     </div>
   );
 }
