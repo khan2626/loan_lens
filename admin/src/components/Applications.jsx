@@ -43,6 +43,7 @@ const Applications = () => {
         },
       });
       dispatch(setApplications(response.data));
+      console.log(response.data)
     } catch (err) {
       console.error('Error fetching applications:', err);
       if (err.response) {
@@ -139,6 +140,9 @@ const Applications = () => {
               return (
                 <div key={app._id} className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 w-full max-w-sm flex flex-col">
                   <h3 className="text-xl font-bold text-blue-700 mb-2">Application ID: {app._id.substring(0, 8)}...</h3>
+                  <p className="text-gray-700 mb-2">
+                    <span className="font-semibold">Applicant Name:</span> {app.applicantName || 'N/A'}
+                  </p>
                   <p className="text-gray-700 mb-1">
                     <span className="font-semibold">Amount:</span> NGN {app.amount ? app.amount.toLocaleString() : 'N/A'}
                   </p>

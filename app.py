@@ -34,6 +34,7 @@ db = client.microfinance
 load_ml_model_and_explainer(model_path='model.pkl')
 print("ML model and SHAP explainer initialized for Flask app.")
 
+
 @app.route('/api/predict', methods=['POST'])
 @jwt_required()
 def predict():
@@ -55,16 +56,30 @@ def predict():
 
         # 2. Get Prediction and Explanation
         prediction_logic_start_time = time.time()
-        # Call the dedicated function from your prediction_service module
         prediction_result = get_loan_prediction(data)
         print(f"[{time.time() - request_start_time:.2f}s] Prediction logic took {time.time() - prediction_logic_start_time:.2f}s.")
+
+        # --- Fetch Applicant Name from 'users' collection ---
+        user_id = get_jwt_identity()
+        applicant_name = "Unknown User" # Default value
+        try:
+            # Assuming user_id from JWT is a string that can be converted to ObjectId
+            user_doc = db.users.find_one({"_id": ObjectId(user_id)}, {"name": 1}) # Fetch only username
+            if user_doc and 'name' in user_doc:
+                applicant_name = user_doc['name']
+            else:
+                print(f"[{time.time() - request_start_time:.2f}s] User with ID {user_id} not found or no username.")
+        except Exception as user_fetch_error:
+            print(f"[{time.time() - request_start_time:.2f}s] Error fetching user name for ID {user_id}: {user_fetch_error}")
+        # --- End Fetch Applicant Name ---
 
         # 3. Save Application Data to DB
         db_save_start_time = time.time()
         application_data = {
             **data, # Original input data
             **prediction_result, # Prediction results (riskScore, recommendation, explanation)
-            'user_id': get_jwt_identity(), # Get user ID from JWT token
+            'user_id': user_id, # Store user ID
+            'applicantName': applicant_name, # NEW: Add applicant's name
             'status': 'pending', # Initial status for new applications
             'created_at': datetime.now().isoformat() # Store timestamp in ISO 8601 format
         }
@@ -75,61 +90,14 @@ def predict():
         return jsonify(prediction_result), 200
 
     except RuntimeError as e:
-        # This error is raised by get_loan_prediction if the model wasn't loaded
         print(f"[{time.time() - request_start_time:.2f}s] ML Model Loading Error: {e}")
         return jsonify({"error": "ML model not available. Server configuration error."}), 500
     except json.JSONDecodeError:
         print(f"[{time.time() - request_start_time:.2f}s] Invalid JSON format in request body.")
         return jsonify({"error": "Invalid JSON format in request body"}), 400
     except Exception as e:
-        # Catch any other unexpected errors
         print(f"[{time.time() - request_start_time:.2f}s] An unexpected error occurred: {e}")
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
-
-
-
-# @app.route('/api/predict', methods=['POST'])
-# @jwt_required()
-# def predict():
-#     try:
-#         # Validate input
-#         data = request.get_json()
-#         required_fields = ['amount', 'duration', 'monthlyIncome', 'creditHistory', 'mobileMoneyHistory']
-#         if not all(field in data for field in required_fields):
-#             return jsonify({"error": "Missing required fields"}), 400
-
-#         # Run predict.py as subprocess with timeout
-#         input_str = json.dumps(data)
-#         result = subprocess.run(
-#             ['python', 'predict.py', input_str],
-#             capture_output=True,
-#             text=True,
-#             timeout=60  # 30 second timeout
-#         )
-
-#         if result.returncode != 0:
-#             return jsonify({"error": "Prediction failed", "details": result.stderr}), 500
-
-#         result_json = json.loads(result.stdout)
-
-#         # Save application with prediction result to DB
-#         application_data = {
-#             **data,
-#             **result_json,
-#             'user_id': get_jwt_identity(),
-#             'status': 'pending',
-#             'created_at': datetime.now()
-#         }
-#         db.applications.insert_one(application_data)
-
-#         return jsonify(result_json), 200
-
-#     except subprocess.TimeoutExpired:
-#         return jsonify({"error": "Prediction timed out"}), 504
-#     except json.JSONDecodeError:
-#         return jsonify({"error": "Invalid prediction response"}), 500
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/applications', methods=['GET'])

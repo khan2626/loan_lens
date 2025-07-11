@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const StatusUpdate = ({ application, onClose, onSubmit, isLoading }) => {
+const StatusUpdateModal = ({ application, onClose, onSubmit, isLoading }) => {
   const [newStatus, setNewStatus] = useState(application.status || 'pending');
   const [note, setNote] = useState('');
 
@@ -77,4 +77,4 @@ const StatusUpdate = ({ application, onClose, onSubmit, isLoading }) => {
   );
 };
 
-export default StatusUpdate;
+export default StatusUpdateModal;
