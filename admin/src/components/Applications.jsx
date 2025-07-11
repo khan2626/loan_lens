@@ -97,6 +97,9 @@ const Applications = () => {
     }
   };
 
+  const pendingApplications = applications.filter(app => app.status === "pending")
+  console.log("pending", pendingApplications)
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 font-inter">
@@ -120,13 +123,13 @@ const Applications = () => {
           Loan Applications
         </h2>
 
-        {applications.length === 0 ? (
+        {pendingApplications.length === 0 ? (
           <div className="bg-white p-6 rounded-lg shadow-md text-center text-gray-600 text-lg">
-            No loan applications found!
+            No pending loan applications found!
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-            {applications.map((app) => {
+            {pendingApplications.map((app) => {
               const featureImportancesData = app.explanation?.feature_importances
                 ? Object.entries(app.explanation.feature_importances)
                     .map(([name, value]) => ({

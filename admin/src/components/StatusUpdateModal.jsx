@@ -36,6 +36,7 @@ const StatusUpdateModal = ({ application, onClose, onSubmit, isLoading }) => {
                 </option>
               ))}
             </select>
+            
           </div>
           <div>
             <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">

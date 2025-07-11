@@ -77,7 +77,7 @@ const Apply = () => {
 
     try {
       
-      const API_URL = 'https://loan-lens.onrender.com/api/predict'; 
+      const API_URL = 'http://172.20.10.2:8300/api/predict'; 
 
       
       const token = localStorage.getItem('access_token'); 
@@ -237,7 +237,7 @@ const Apply = () => {
                     name="transactionFrequency"
                     value={formData.mobileMoneyHistory.transactionFrequency}
                     onChange={handleMobileMoneyChange}
-                    placeholder="e.g., 10"
+                    placeholder="e.g., 0.3 = 10txns"
                     className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                     required
                     disabled={isSubmitting} 
