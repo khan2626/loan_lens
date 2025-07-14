@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import logo from '../assets/logo.jpeg';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-const Navbar = ({ setIsLoggedIn }) => {
+const Navbar = ({ setIsLoggedIn, isLoggedIn }) => { // Accept isLoggedIn prop
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,8 +25,8 @@ const Navbar = ({ setIsLoggedIn }) => {
     // Trigger event for other components
     window.dispatchEvent(new Event('app-logout'));
     
-    // Navigate to login page
-    navigate('/login');
+    // Navigate to login page (or home page, which redirects to login if not logged in)
+    navigate('/');
     
     // Close mobile menu if open
     setIsMobileMenuOpen(false);
@@ -38,44 +38,78 @@ const Navbar = ({ setIsLoggedIn }) => {
     <nav className="relative bg-green-800 text-white p-4 shadow-lg rounded-lg font-inter">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <img
-            src={logo}
-            alt="Naija Loan Lens Logo"
-            className="h-10 w-10 rounded-full object-cover shadow-md"
-          />
-          <h1 className="text-2xl font-extrabold tracking-wide text-blue-300">
-            NAIJA LOAN LENS
-          </h1>
+          <Link to={isLoggedIn ? "/dashboard" : "/"} className="flex items-center space-x-3"> {/* Link logo to dashboard if logged in, else home */}
+            <img
+              src={logo}
+              alt="Naija Loan Lens Logo"
+              className="h-10 w-10 rounded-full object-cover shadow-md"
+            />
+            <h1 className="text-2xl font-extrabold tracking-wide text-blue-300">
+              NAIJA LOAN LENS
+            </h1>
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
         <ul className="hidden md:flex items-center space-x-8 text-lg font-medium">
-          <li className="hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
-            <Link 
-              to="/apply" 
-              className={`${isActive('/apply') ? 'text-blue-400' : 'text-white'}`}
-            >
-              Apply
-            </Link>
-          </li>
-          <li className="hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
-            <Link 
-              to="/dashboard" 
-              className={`${isActive('/dashboard') ? 'text-blue-400' : 'text-white'}`}
-            >
-              Dashboard
-            </Link>
-          </li>
+          {isLoggedIn ? (
+            <>
+              <li className="hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
+                <Link 
+                  to="/apply" 
+                  className={`${isActive('/apply') ? 'text-blue-400' : 'text-white'}`}
+                >
+                  Apply
+                </Link>
+              </li>
+              <li className="hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
+                <Link 
+                  to="/dashboard" 
+                  className={`${isActive('/dashboard') ? 'text-blue-400' : 'text-white'}`}
+                >
+                  Dashboard
+                </Link>
+              </li>
+            </>
+          ) : (
+            <>
+              <li className="hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
+                <Link 
+                  to="/login" 
+                  className={`${isActive('/login') ? 'text-blue-400' : 'text-white'}`}
+                >
+                  Login
+                </Link>
+              </li>
+              <li className="hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
+                <Link 
+                  to="/signup" 
+                  className={`${isActive('/signup') ? 'text-blue-400' : 'text-white'}`}
+                >
+                  Signup
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
 
-        {/* Desktop Logout Button */}
+        {/* Desktop Auth Button */}
         <div className="hidden md:block">
-          <button 
-            onClick={handleLogout}
-            className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75"
-          >
-            Logout
-          </button>
+          {isLoggedIn ? (
+            <button 
+              onClick={handleLogout}
+              className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link 
+              to="/login" 
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+            >
+              Login
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -102,20 +136,34 @@ const Navbar = ({ setIsLoggedIn }) => {
           </button>
 
           <ul className="flex flex-col items-center space-y-6 text-2xl font-bold">
-            <li className="text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
-              <Link to="/apply" onClick={toggleMobileMenu}>Apply</Link>
-            </li>
-            <li className="text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
-              <Link to="/dashboard" onClick={toggleMobileMenu}>Dashboard</Link>
-            </li>
-            <li>
-              <button
-                onClick={handleLogout}
-                className="mt-8 px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 w-full"
-              >
-                Logout
-              </button>
-            </li>
+            {isLoggedIn ? (
+              <>
+                <li className="text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
+                  <Link to="/apply" onClick={toggleMobileMenu}>Apply</Link>
+                </li>
+                <li className="text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
+                  <Link to="/dashboard" onClick={toggleMobileMenu}>Dashboard</Link>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="mt-8 px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 w-full"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
+                  <Link to="/login" onClick={toggleMobileMenu}>Login</Link>
+                </li>
+                <li className="text-white hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">
+                  <Link to="/signup" onClick={toggleMobileMenu}>Signup</Link>
+                </li>
+                {/* No logout button if not logged in */}
+              </>
+            )}
           </ul>
         </div>
       )}

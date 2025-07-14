@@ -6,6 +6,7 @@ import Dashboard from "./components/Dashboard";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import Footer from "./components/Footer";
+import HomePage from "./components/HomePage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('access_token'));
@@ -37,21 +38,38 @@ function App() {
     return children;
   };
 
+  const RedirectIfLoggedIn = ({ children }) => {
+    if (isLoggedIn) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    return children;
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <BrowserRouter>
-        {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />}
+        {/* Navbar is now always rendered */}
+        <Navbar setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />
         
         <div className="p-4">
           <Routes>
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route 
               path="/" 
-              element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login setIsLoggedIn={setIsLoggedIn} />} 
+              element={
+                isLoggedIn ? <Navigate to="/dashboard" replace /> : <HomePage />
+              } 
             />
+
+            <Route path="/signup" element={<RedirectIfLoggedIn><Signup /></RedirectIfLoggedIn>} />
+            
+            <Route 
+              path="/login" 
+              element={<RedirectIfLoggedIn><Login setIsLoggedIn={setIsLoggedIn} /></RedirectIfLoggedIn>} 
+            />
+            
             <Route path="/apply" element={<ProtectedRoute><Apply /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            
             <Route path="*" element={
               <div className="flex justify-center items-center h-64">
                 <h2 className="text-3xl text-center mt-10 text-red-500">Page Not Found</h2>
@@ -60,6 +78,7 @@ function App() {
           </Routes>
         </div>
       </BrowserRouter>
+      {/* Footer only shows if logged in */}
       {isLoggedIn && <Footer setIsLoggedIn={setIsLoggedIn}/>}
     </div>
   );
