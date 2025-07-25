@@ -84,7 +84,7 @@ const Dashboard = () => {
         // In a real app, use a custom message box instead of alert()
         alert('Payment successful!'); 
         // Re-fetch applications to update the list and balances
-        await fetchApplications(); 
+        // await fetchApplications(); 
         handleClosePaymentModal();
       }
     } catch (err) {
