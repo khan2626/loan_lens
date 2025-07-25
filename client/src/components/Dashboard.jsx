@@ -15,42 +15,44 @@ const Dashboard = () => {
   const [currentApplicationForPayment, setCurrentApplicationForPayment] = useState(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  useEffect(() => {
-    const fetchApplications = async () => {
-      setLoading(true); // Set loading true at the start of fetch
-      setError(null); // Clear any previous errors
-      try {
-        const API_URL = 'https://loan-lens.onrender.com/api/applications'; // Corrected API URL to match your Flask app's /api/applications endpoint
 
-        const token = localStorage.getItem('access_token'); 
+  const fetchApplications = async () => {
+    setLoading(true); // Set loading true at the start of fetch
+    setError(null); // Clear any previous errors
+    try {
+      const API_URL = 'https://loan-lens.onrender.com/api/applications'; // Corrected API URL to match your Flask app's /api/applications endpoint
 
-        if (!token) {
-          setError('Authentication token not found. Please log in.');
-          setLoading(false);
-          return;
-        }
+      const token = localStorage.getItem('access_token'); 
 
-        const response = await axios.get(API_URL, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, 
-          },
-        });
-        
-        setApplications(response.data);
-      } catch (err) {
-        console.error('Error fetching applications:', err);
-        
-        if (err.response) {
-          setError(err.response.data.error || 'Failed to fetch applications from server. Please logout and login');
-        } else {
-          setError(err.message || 'Could not load applications. Please try again.');
-        }
-      } finally {
+      if (!token) {
+        setError('Authentication token not found. Please log in.');
         setLoading(false);
+        return;
       }
-    };
 
+      const response = await axios.get(API_URL, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, 
+        },
+      });
+      
+      setApplications(response.data);
+    } catch (err) {
+      console.error('Error fetching applications:', err);
+      
+      if (err.response) {
+        setError(err.response.data.error || 'Failed to fetch applications from server. Please logout and login');
+      } else {
+        setError(err.message || 'Could not load applications. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
     fetchApplications();
   }, []); 
 
@@ -84,7 +86,7 @@ const Dashboard = () => {
         // In a real app, use a custom message box instead of alert()
         alert('Payment successful!'); 
         // Re-fetch applications to update the list and balances
-        // await fetchApplications(); 
+        await fetchApplications(); 
         handleClosePaymentModal();
       }
     } catch (err) {
