@@ -29,10 +29,90 @@ MONGO_URI = os.getenv("MONGO_URI")
 
 client = MongoClient(MONGO_URI)
 db = client.microfinance
-
+print("MONGO", MONGO_URI)
 
 load_ml_model_and_explainer(model_path='model.pkl')
 print("ML model and SHAP explainer initialized for Flask app.")
+
+
+@app.route('/api/applications/<application_id>/payment', methods=['POST'])
+@jwt_required()
+def process_payment(application_id):
+    try:
+        current_user_id = get_jwt_identity()
+        data = request.get_json()
+        payment_amount = data.get('amount')
+        payment_method = data.get('method')
+
+        if not payment_amount or not payment_method:
+            return jsonify({"error": "Payment amount and method are required."}), 400
+
+        try:
+            payment_amount = float(payment_amount)
+            if payment_amount <= 0:
+                return jsonify({"error": "Payment amount must be positive."}), 400
+        except ValueError:
+            return jsonify({"error": "Invalid payment amount."}), 400
+
+        # Find the application
+        application = db.applications.find_one({"_id": ObjectId(application_id)})
+
+        if not application:
+            return jsonify({"error": "Application not found."}), 404
+        
+        # Optional: Check if the current user is authorized to make payment for this application
+        # if application.get('user_id') != current_user_id:
+        #     return jsonify({"error": "Unauthorized to make payment for this application."}), 403
+
+        loan_amount = application.get('amount', 0)
+        total_paid_so_far = application.get('totalPaid', 0)
+        
+        remaining_balance = loan_amount - total_paid_so_far
+
+        if payment_amount > remaining_balance + 0.01: # Allow for tiny floating point differences
+            return jsonify({"error": f"Payment amount (NGN {payment_amount:,.2f}) exceeds remaining balance (NGN {remaining_balance:,.2f})."}), 400
+        
+        # Update the application
+        new_total_paid = total_paid_so_far + payment_amount
+        
+        # Determine new status
+        new_status = application['status'] # Keep current status by default
+        if new_total_paid >= loan_amount:
+            new_status = 'fully_paid'
+        elif new_total_paid > 0 and new_total_paid < loan_amount:
+            new_status = 'partially_paid' # Or keep original status if you prefer
+
+        update_result = db.applications.update_one(
+            {"_id": ObjectId(application_id)},
+            {
+                "$inc": {"totalPaid": payment_amount},
+                "$push": {
+                    "payments": {
+                        "amount": payment_amount,
+                        "method": payment_method,
+                        "date": datetime.now().isoformat(),
+                        "processedBy": current_user_id # Log who made the payment
+                    }
+                },
+                "$set": {"status": new_status} # Update status
+            }
+        )
+
+        if update_result.modified_count == 1:
+            return jsonify({"message": "Payment processed successfully.", "newStatus": new_status, "newTotalPaid": new_total_paid}), 200
+        else:
+            return jsonify({"error": "Failed to update application with payment. Application might not exist or no changes were made."}), 500
+
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON format in request body."}), 400
+    except Exception as e:
+        print(f"Error processing payment: {e}")
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+
+
+
+# --------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------
 
 
 @app.route('/api/predict', methods=['POST'])
@@ -81,7 +161,9 @@ def predict():
             'user_id': user_id, # Store user ID
             'applicantName': applicant_name, # NEW: Add applicant's name
             'status': 'pending', # Initial status for new applications
-            'created_at': datetime.now().isoformat() # Store timestamp in ISO 8601 format
+            'created_at': datetime.now().isoformat(), # Store timestamp in ISO 8601 format
+            'totalPaid': 0, # Initialize totalPaid for new applications
+            'payments': []
         }
         db.applications.insert_one(application_data)
         print(f"[{time.time() - request_start_time:.2f}s] DB save took {time.time() - db_save_start_time:.2f}s.")
