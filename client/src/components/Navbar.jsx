@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import logo from '../assets/logo.jpeg';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-const Navbar = ({ setIsLoggedIn, isLoggedIn }) => { // Accept isLoggedIn prop
+const Navbar = ({ setIsLoggedIn, isLoggedIn }) => { 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
