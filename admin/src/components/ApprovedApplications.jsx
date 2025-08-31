@@ -6,7 +6,7 @@ const ApprovedApplications = () => {
   const { applications } = useSelector(state => state.root);
 
   // Filter applications here, after getting them from the Redux store
-  const approvedApplications = applications.filter(app => app.status === "approved");
+  const approvedApplications = applications.filter(app => app.status === "approved" || app.status === "partially_paid" || app.status === "fully_paid");
   
   return (
     <div className='min-h-screen bg-gray-100 p-4 font-inter'>

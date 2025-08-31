@@ -20,7 +20,7 @@ const Dashboard = () => {
     setLoading(true); // Set loading true at the start of fetch
     setError(null); // Clear any previous errors
     try {
-      const API_URL = 'https://loan-lens.onrender.com/api/applications'; // Corrected API URL to match your Flask app's /api/applications endpoint
+      const API_URL = 'https://loan-lens.onrender.com/api/my-applications'; // Corrected API URL to match your Flask app's /api/applications endpoint
 
       const token = localStorage.getItem('access_token'); 
 
